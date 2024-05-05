@@ -18,10 +18,13 @@ int maxCircles = 15;
 int numberOfCircle = 6;
 int numberOfCircle2 = numberOfCircle;
 
+int musicIndex = 0;
+
 float degreeBetweenCircles = 360 / numberOfCircle;
 
 bool inGame = false;
 bool inMenu = true;
+bool inAudio = false;
 
 float tanX;
 float posX;
@@ -142,6 +145,9 @@ int main()
 {
     srand(time(NULL)*10);
 
+    Rectangle audioButton = {700,20,80,40};
+    Rectangle menuButton = {700,80,80,40};
+
     Rectangle startButton = {halfScreenWidth - 175, halfScreenHeight - 75, 350, 150};
 
     for (int i = 1; i <= maxCircles; i++)
@@ -149,19 +155,24 @@ int main()
 
     // Definitions
     InitWindow(screenWidth, screenHeight, "Make It 10");
+    InitAudioDevice();
     Texture2D background = LoadTexture("resources/background.png");
     Texture2D menubackground = LoadTexture("resources/Menubackground.png");
-    SetTargetFPS(60);
 
+    Music musicList[1] = {LoadMusicStream("resources/kompa.mp3")};
+    SetTargetFPS(60);
+SetMusicVolume(musicList[0], 0.2);
     // Setting
 
     int x = halfScreenWidth;
     Vector2 c1;
 
     int score = 0,highscore=0;
+    PlayMusicStream(musicList[musicIndex]);
 
     while (!WindowShouldClose())
     {
+        UpdateMusicStream(musicList[musicIndex]);
         if (score>highscore)
         {
             highscore = score;
@@ -173,7 +184,6 @@ int main()
 
 
         BeginDrawing();
-
 
 
         if (inGame)
@@ -216,11 +226,34 @@ int main()
 
             drawGameScreen();
             drawCircles();
+
+
+            //menu button
+        if (CheckCollisionPointRec(GetMousePosition(),menuButton))
+        {
+        DrawRectangle(700,80,80,40,RED);
+        DrawText("Menu",715,90,20,BLACK);
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+        LostEnabled = true;
+        inMenu = true;
+        inGame = false;
+        }
+        {
+
+        }
+        }
+        else
+        {
+        DrawRectangle(700,80,80,40,LIGHTGRAY);
+        DrawText("Menu",715,90,20,WHITE);
+        }
         }
 
         else if (inMenu == true)
         {
             ClearBackground(RAYWHITE);
+            
             DrawTexture(menubackground, 0, 0, WHITE);
             DrawRectangle(halfScreenWidth - 175, halfScreenHeight - 75, 350, 150, colorOfStartButton);
             DrawText("START", halfScreenWidth - 70, halfScreenHeight - 20, 40, BLACK);
@@ -247,6 +280,8 @@ int main()
                 DrawText(TextFormat("HIGHSCORE : %d",highscore), 150, 350, 65, RED);
                 score = 0;
             }
+
+            
         }
         if (inGame)
         {
@@ -260,13 +295,13 @@ int main()
                 
             }
         }
-        EndDrawing();
 
-        if (IsKeyPressed(KEY_Y))
-        {
-            inGame = false;
-            inMenu = true;
-        }
+        
+
+
+
+
+        EndDrawing();
 
         // control mechanism
         for (int i = 0, j = 1, k = 2; i < numberOfCircle; i++, j++, k++)
@@ -325,6 +360,8 @@ int main()
             LostEnabled = true;
         }
     }
+
+    UnloadMusicStream(musicList[musicIndex]);
 
     CloseWindow();
     return 0;
