@@ -15,7 +15,7 @@ const int radiusOfMainCircle = 200;
 
 int maxCircles = 15;
 
-int numberOfCircle = 6;
+int numberOfCircle = 10;
 int numberOfCircle2 = numberOfCircle;
 
 int musicIndex = 0;
@@ -75,17 +75,10 @@ void drawCircles()
     {
 
         // queue finding placeholder
-        queue = atan(tanX) * 180 / PI;
+                queue = atan(tanX) * 180 / PI;
 
-        if (queue >= 0 && GetMouseX() >= 400)
-        {
-            queue = 90 - queue;
-        }
-        else if (queue >= 0)
-        {
-            queue = 270 - queue;
-        }
-        else if (GetMouseX() >= 400 && queue < 0)
+      
+         if (GetMouseX() >= 400 && queue < 0)
         {
             queue = 90 - queue;
         }
@@ -93,8 +86,13 @@ void drawCircles()
         {
             queue = 270 - queue;
         }
+        if (queue >= 180 && GetMouseX() >= 400)
+        {
+           queue = queue - 180;
+        }  
 
-        CircleQueue = queue / degreeBetweenCircles;
+
+        CircleQueue =queue / degreeBetweenCircles;
 
         mouseX = GetMousePosition().x - 400;
         mouseY = GetMousePosition().y - 250;
@@ -160,8 +158,11 @@ int main()
     Texture2D menubackground = LoadTexture("resources/Menubackground.png");
 
     Music musicList[1] = {LoadMusicStream("resources/kompa.mp3")};
+    Sound woosh = {LoadSound("resources/woosh.mp3")};
+
     SetTargetFPS(60);
 SetMusicVolume(musicList[0], 0.2);
+SetSoundVolume(woosh,2);
     // Setting
 
     int x = halfScreenWidth;
@@ -224,6 +225,11 @@ SetMusicVolume(musicList[0], 0.2);
                 DrawText(TextFormat("%d", circArr[j]), c1.x - 5, c1.y - 8, 20, WHITE);
             }
 
+            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+            {
+                PlaySound(woosh);
+            }
+            
             drawGameScreen();
             drawCircles();
 
@@ -296,10 +302,6 @@ SetMusicVolume(musicList[0], 0.2);
             }
         }
 
-        
-
-
-
 
         EndDrawing();
 
@@ -362,6 +364,7 @@ SetMusicVolume(musicList[0], 0.2);
     }
 
     UnloadMusicStream(musicList[musicIndex]);
+    UnloadSound(woosh);
 
     CloseWindow();
     return 0;
